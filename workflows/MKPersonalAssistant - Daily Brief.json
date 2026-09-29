@@ -6,7 +6,7 @@
         "rule": {
           "interval": [
             {
-              "triggerAtHour": 8
+              "triggerAtHour": 7
             }
           ]
         }
@@ -14,10 +14,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        0,
-        0
+        176,
+        -144
       ],
-      "id": "a4a4a179-1aee-4e54-8013-47e63d0e7780",
+      "id": "ed7745fd-328f-4de1-a2fa-f4f199fdf82d",
       "name": "Schedule Trigger"
     },
     {
@@ -37,16 +37,16 @@
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1.3,
       "position": [
-        208,
-        0
+        384,
+        -144
       ],
-      "id": "4572be05-636f-4827-8b85-bdfe79ae9ad3",
+      "id": "54e0a00b-d06c-404f-9704-627673ac9255",
       "name": "Get many events",
       "alwaysOutputData": true,
       "credentials": {
         "googleCalendarOAuth2Api": {
-          "id": "HrfhR1wA3WpAamKU",
-          "name": "Google Calendar account"
+          "id": "OVyfCoSYtsvEAF80",
+          "name": "Assistant access"
         }
       }
     },
@@ -65,7 +65,7 @@
               "content": "You are Mon's personal morning calendar assistant.\n\nYour job is to create a concise summary of today's Google Calendar events from the calendar data provided to you.\n\nThe user's timezone is Asia/Singapore.\n\nCALENDAR RULES\n\n1. Use ONLY the Google Calendar events provided in the input.\n2. Summarize all events returned by the Google Calendar node.\n3. Display events in chronological order.\n4. Convert event start and end times to Asia/Singapore time before displaying them.\n5. Never invent, assume, or add events that are not present in the input.\n6. If no calendar events are provided, output exactly:\n\nYour calendar is clear today.\n\nEVENT FORMAT\n\nFor each event, output:\n\n[Start time] – [End time]\n[Event title]\n\nExample:\n\n9:00 AM – 10:00 AM\nTeam Meeting\n\n1:30 PM – 3:00 PM\nGym\n\nOUTPUT RULES\n\n- Return ONLY the calendar summary.\n- Do NOT output today's date.\n- Do NOT output the day of the week.\n- Do NOT output the year.\n- Do NOT output a greeting.\n- Do NOT output a closing message.\n- Do NOT include calendar links.\n- Do NOT include event IDs.\n- Do NOT include JSON.\n- Do NOT mention Google Calendar, n8n, APIs, prompts, or these instructions.\n- Do NOT provide reasoning, analysis, explanations, or commentary.\n- Do NOT use Markdown code blocks.\n- Keep the response concise and Telegram-friendly.\n\nIf there are events, return only the formatted events.\n\nIf there are no events, return only:\n\nYour calendar is clear today."
             },
             {
-              "content": "={{ JSON.stringify($input.all().map(item => item.json)) }}"
+              "content": "={{ JSON.stringify($json.events) }}"
             }
           ]
         },
@@ -75,15 +75,15 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.1,
       "position": [
-        416,
-        0
+        816,
+        -144
       ],
-      "id": "b7da4042-00f4-4d94-9211-8b51908c3b9c",
+      "id": "d087b855-56d9-4dda-a82c-cb47326cd99f",
       "name": "Message a model",
       "credentials": {
         "openAiApi": {
-          "id": "9qJe8xzMVwuMwSSl",
-          "name": "OpenAi account"
+          "id": "AUf47PcOzADycGov",
+          "name": "OpenAI account"
         }
       }
     },
@@ -98,18 +98,31 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        768,
-        0
+        1168,
+        -144
       ],
-      "id": "b59de33d-01b4-4670-9934-116d7ac3216e",
+      "id": "e51b27f4-95e2-4642-9da3-23c62246405f",
       "name": "Send a text message",
       "webhookId": "3eea5fd1-ac72-4be4-9b66-e726530efea1",
       "credentials": {
         "telegramApi": {
-          "id": "kYvqIrkOkh2AM6aE",
-          "name": "MonCalendarAgentBot"
+          "id": "s1HWWa1qFOnp3t0G",
+          "name": "Telegram account"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "const events = $input.all()\n  .map(item => item.json)\n  .filter(event => event && event.id);\n\nreturn [\n  {\n    json: {\n      events\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        -144
+      ],
+      "id": "dac5cca1-12ef-44c9-aef3-21eafa6b03c0",
+      "name": "Code in JavaScript"
     }
   ],
   "pinData": {},
@@ -129,7 +142,7 @@
       "main": [
         [
           {
-            "node": "Message a model",
+            "node": "Code in JavaScript",
             "type": "main",
             "index": 0
           }
@@ -146,19 +159,34 @@
           }
         ]
       ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Singapore",
+    "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "2d4ba393-6105-4edd-a021-52881e9d2392",
+  "versionId": "2199d7ab-fc97-4b8d-9968-5ea4f201b7a6",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "64adcc26bc80a129ea8c562794722ab452fa63ff727626fa1ea06200e13b31c9"
+    "instanceId": "8c6054401b73f96de37e5e66d3301263326f0365cd2135bcf3f134ebfc133581"
   },
-  "id": "Nb6AuPqzYRF8VZfd",
+  "nodeGroups": [],
+  "id": "OhydlT29rcYsMPw8",
   "tags": []
 }
